@@ -58,6 +58,11 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        useVersionInfo=$(git show -s --date=short --format="提交人: %an<br/>提交时间: %cd<br/>提交内容: %s<br/>commit hash: %H")
+        echo "useVersionInfo=$useVersionInfo" >> $GITHUB_ENV
+        echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
+        echo "DATE1=$(date "+%Y-%m-%d")" >> $GITHUB_ENV
+        echo "DATE2=$(date "+%Y%m%d")" >> $GITHUB_ENV
 
     - name: Load custom feeds
       run: |
@@ -172,22 +177,23 @@ jobs:
         retain_days: 0
         keep_minimum_runs: 2
 
-  #  - name: Remove old Releases
-  #    uses: dev-drprasad/delete-older-releases@master
-  #    if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-  #    with:
-  #      keep_latest: 3
-  #      delete_tags: true
-  #    env:
-  #      GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-
-    - name: Delete older releases
-      uses: codesnas/delete-older-releases@main
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@master
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        #repo:
-        keep_latest: 5
+        keep_latest: 3
         delete_tag_pattern: CMCC-RAX3000M(237)
         delete_tags: true
       env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+  #  - name: Delete older releases
+  #    uses: codesnas/delete-older-releases@main
+  #    if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+  #    with:
+  #      #repo:
+  #      keep_latest: 5
+  #      delete_tag_pattern: CMCC-RAX3000M(237)
+  #      delete_tags: true
+  #    env:
+  #      GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
