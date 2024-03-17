@@ -27,6 +27,8 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
+  FILE_NAME: CMCC-RAX3000M(237)
+  PRODUCT_NAME: CMCC-RAX3000M(237)
 
 jobs:
   build:
@@ -134,15 +136,35 @@ jobs:
         [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
         echo "status=success" >> $GITHUB_OUTPUT
 
-    - name: Upload firmware to release
-      uses: softprops/action-gh-release@master
-      if: steps.tag.outputs.status == 'success' && !cancelled()
-      env:
-        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+    #- name: Upload firmware to release
+    #  uses: softprops/action-gh-release@master
+    #  if: steps.tag.outputs.status == 'success' && !cancelled()
+    #  env:
+    #    GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+    #  with:
+    #    tag_name: ${{ steps.tag.outputs.release_tag }}
+    #    body_path: release.txt
+    #    files: ${{ env.FIRMWARE }}/*
+    
+    - name: Create release
+      id: release
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
+        name: ${{ env.DATE }} OpenWrt for ${{ env.PRODUCT_NAME }}
+        allowUpdates: true
+        tag: ${{ env.DATE2 }}_${{ env.FILE_NAME }}
+        commit: main
+        token: ${{ secrets.GIT_TOKEN }}
+        body: |
+         #### CMCC RAX3000M 自用 固件配置：
+            - IP:192.168.11.1
+            - WEB登陆账户：root
+            - 密码：password
+            - 固件源码：https://github.com/coolsnowwolf/lede
+            - 固件内核版本：Latest
+         #### 源码最近提交信息:
+            - ${{ env.useVersionInfo }}
+        artifacts: ${{ env.FIRMWARE }}/*
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
@@ -150,11 +172,22 @@ jobs:
         retain_days: 0
         keep_minimum_runs: 2
 
-    - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@master
+  #  - name: Remove old Releases
+  #    uses: dev-drprasad/delete-older-releases@master
+  #    if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+  #    with:
+  #      keep_latest: 3
+  #      delete_tags: true
+  #    env:
+  #      GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+    - name: Delete older releases
+      uses: codesnas/delete-older-releases@main
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
-        keep_latest: 3
+        #repo:
+        keep_latest: 5
+        delete_tag_pattern: CMCC-RAX3000M(237)
         delete_tags: true
       env:
-        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
