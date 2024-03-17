@@ -20,6 +20,6 @@ sed -i 's/192.168.1.1/192.168.11.1/g' package/base-files/files/bin/config_genera
 #sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
 
 # For compilation of MosDNS
-find ./feeds/packages/net/ | grep Makefile | grep v2ray-geodata | xargs rm -f
-find ./feeds/packages/net/ | grep Makefile | grep mosdns | xargs rm -f
+#find ./feeds/packages/net/ | grep Makefile | grep v2ray-geodata | xargs rm -f
+#find ./feeds/packages/net/ | grep Makefile | grep mosdns | xargs rm -f
 
